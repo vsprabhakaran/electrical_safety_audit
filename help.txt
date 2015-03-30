@@ -1,0 +1,25 @@
+    <div style="margin-left:3em; display:inline">Branch Code : <p id="branchCodeSpace" style="display:inline"><?php echo $branch_code ?></p></div>
+    <div style="margin-right:3em; display:inline;float:right">Branch Name : <p id="branchNameSpace" style="display:inline"><?php echo $branch_name ?></p></div>
+      $balancingAndDistribution_status= "";
+      $balancingAndDistribution_date= "";
+	  $mccb_status= "";
+      $mccb_date= "";
+      $earthing_status= "";
+      $earthing_date= "";
+      $oldWireReplace_status= "";
+      $oldWireReplace_date= "";
+      $emergencyLamp_status= "";
+      $emergencyLamp_date= "";
+      $scrapsRemoval_status= "";
+      $scrapsRemoval_date= "";
+      $ventilation_status= "";
+      $ventilation_date= "";
+	  $maintenance_status= "";
+      $maintenance_date= "";
+      $acTimers_status= "";
+      $acTimers_date= "";
+      $powerFactor_status= "";
+      $powerFactor_date= "";
+	  $otherObservations_status= "";
+      $otherObservations_comments= "";
+    <div style="margin-left:3em; display:inline">Date : <p id="submissionDate" style="display:inline">submission date</p></div>
