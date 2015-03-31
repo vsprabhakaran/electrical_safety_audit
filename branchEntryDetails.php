@@ -298,10 +298,10 @@
     pointed out in the respective Branch Electrical Safety Audit Report.
   </p>
   <p>
-    <input type="checkbox" name="acceptConfirmation" value="confirmed" checked="checked" readonly="readonly" disabled/>I, the branch manager, confirmed that all the observations pointed out in the Electrical Safety Audit report have been attended.
+    <input type="checkbox" name="acceptConfirmation" value="confirmed" checked="checked" readonly="readonly" disabled/>I confirm that all the observations pointed out in the Electrical Safety Audit report have been attended.
   </p>
   <div>
-    <div style="display:inline;font-weight:bold">Date : <p id="submissionDate" style="display:inline"><?php echo date("d/m/Y h:m:sa",strtotime($submissionDate)); ?></p></div>
+    <div style="display:inline;font-weight:bold">Date : <p id="submissionDate" style="display:inline"><?php echo date("d/m/Y h:i:sa",strtotime($submissionDate)); ?></p></div>
     <div style="margin-right:3em; display:inline;float:right;" >(BRANCH MANAGER)</div>
   </div>
   <div style="text-align:center;padding:3em;">

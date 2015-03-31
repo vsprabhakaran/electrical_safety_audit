@@ -374,7 +374,7 @@
     pointed out in the respective Branch Electrical Safety Audit Report.
   </p>
   <p class="conditionBox">
-    <input type="checkbox" name="acceptConfirmation" value="confirmed"/> I, the branch manager, confirmed that all the observations pointed out in the
+    <input type="checkbox" name="acceptConfirmation" value="confirmed"/> I, the branch manager, confirm that all the observations pointed out in the
     Electrical Safety Audit report have been attended.
   </p>
   
