@@ -50,15 +50,13 @@
 	}
   ?>
   <style type="text/css">
-	.topHeader th{
+  .topHeader th{
 	font-size:14px;
 	color:white;
 	background-color:rgb(80, 66, 172);
 	border-bottom-width:1px;
   }
-  body{
-	padding-left:2em;
-  }
+
   td {
 	text-align:center;
   }
@@ -77,6 +75,10 @@
 	font-size:2em;
 	font-weight:bold;
 	padding:0.5em 0 1em 0;
+  }
+  .date_picker{
+	background: white url(img/calendar.png) right no-repeat;
+	padding-right: 17px;
   }
   </style>
 </head>
@@ -157,6 +159,7 @@
 	</script>
 
   <div id="header"> </div>
+  <div style="padding-left:2em;">
   <div style="margin-bottom:1em;font-size:14px;font-weight:bold">
     <div style="margin-left:2em; display:inline"><p id="branchCodeSpace" style="display:inline">Branch Code :  <?php echo $branch_code ?></p></div>
     <div style="margin-left:3em; display:inline;"><p id="branchNameSpace" style="display:inline">Branch Name : <?php echo $branch_name ?></p></div>
@@ -181,7 +184,7 @@
       <td><input type="radio" name="balancingAndDistribution_r" value="Yes"/></td>
       <td><input type="radio" name="balancingAndDistribution_r" value="No"/></td>
       <td><input type="radio" name="balancingAndDistribution_r" value="NA"/></td>
-      <td><input type="text" name="balancingAndDistribution_d" id="balancingAndDistribution_d" class="date_picker" value=""/></td>
+      <td><input type="text" name="balancingAndDistribution_d" id="balancingAndDistribution_d" class="date_picker" value=""/><!--img src="img/calendar.png" /--></td>
     </tr>
     <tr>
       <td><p>2</p></td>
@@ -280,10 +283,11 @@
   </p>
   
   <div style="text-align:center">
-      <button type="button" class="pure-button pure-button-primary" name ="submitBtn" onClick="submitForm()">Submit</button>
+      <button type="button" class="pure-button pure-button-primary" name ="submitBtn" onClick="submitForm()">Save and Preview</button>
   </div>
   <br/>
   </form>
+  </div>
 </body>
 
 </html>

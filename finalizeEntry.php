@@ -20,22 +20,23 @@ if(($_POST["post_from"] === "finalizeEntry") && !alreadyExistingEntry($branch_co
 }
 
 //Finalize the entry
+$sqlQuery = "update audit_information set finalized='Yes' , date_of_entry=now() where branch_code='$branch_code'";
 
+$queryStatus = mysqli_query($con,$sqlQuery);
+if(!$queryStatus)
+{
+	echo "<br><h2>Error Updating database!!!</h2><br>";
+	return;
+}
+else{
+	redirect("branchEntryDetails.php");
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+function redirect($url, $statusCode = 303)
+{
+   header('Location: ' . $url, true, $statusCode);
+   die();
+}
 
 
 function alreadyExistingEntry($branch_code)

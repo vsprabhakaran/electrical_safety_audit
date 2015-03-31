@@ -90,16 +90,16 @@
 	$submissionDate = $row['date_of_entry'];
 	
 	//Reworking the dates
-	$balancingAndDistribution_date = ($balancingAndDistribution_date === "0000-00-00")?"-":$balancingAndDistribution_date;
-	$mccb_date = ($mccb_date === "0000-00-00")?"-":$mccb_date;
-	$earthing_date = ($earthing_date === "0000-00-00")?"-":$earthing_date;
-	$oldWireReplace_date = ($oldWireReplace_date === "0000-00-00")?"-":$oldWireReplace_date;
-	$emergencyLamp_date = ($emergencyLamp_date === "0000-00-00")?"-":$emergencyLamp_date;
-	$scrapsRemoval_date = ($scrapsRemoval_date === "0000-00-00")?"-":$scrapsRemoval_date;
-	$ventilation_date = ($ventilation_date === "0000-00-00")?"-":$ventilation_date;
-	$maintenance_date = ($maintenance_date === "0000-00-00")?"-":$maintenance_date;
-	$acTimers_date = ($acTimers_date === "0000-00-00")?"-":$acTimers_date;
-	$powerFactor_date = ($powerFactor_date === "0000-00-00")?"-":$powerFactor_date;
+	$balancingAndDistribution_date = ($balancingAndDistribution_date === "0000-00-00")?"-":date("d/m/Y",strtotime($balancingAndDistribution_date));
+	$mccb_date = ($mccb_date === "0000-00-00")?"-":date("d/m/Y",strtotime($mccb_date));
+	$earthing_date = ($earthing_date === "0000-00-00")?"-":date("d/m/Y",strtotime($earthing_date));
+	$oldWireReplace_date = ($oldWireReplace_date === "0000-00-00")?"-":date("d/m/Y",strtotime($oldWireReplace_date));
+	$emergencyLamp_date = ($emergencyLamp_date === "0000-00-00")?"-":date("d/m/Y",strtotime($emergencyLamp_date));
+	$scrapsRemoval_date = ($scrapsRemoval_date === "0000-00-00")?"-":date("d/m/Y",strtotime($scrapsRemoval_date));
+	$ventilation_date = ($ventilation_date === "0000-00-00")?"-":date("d/m/Y",strtotime($ventilation_date));
+	$maintenance_date = ($maintenance_date === "0000-00-00")?"-":date("d/m/Y",strtotime($maintenance_date));
+	$acTimers_date = ($acTimers_date === "0000-00-00")?"-":date("d/m/Y",strtotime($acTimers_date));
+	$powerFactor_date = ($powerFactor_date === "0000-00-00")?"-":date("d/m/Y",strtotime($powerFactor_date));
 	
 	
 	//Reworking the Comments
@@ -146,7 +146,6 @@
   body{
 	font-size:12px;
 	text-align:left;
-	margin-left:2em;
   }
   .pure-table td{
 	padding: 0.25ex;
@@ -163,6 +162,7 @@
 	color:white;
 	background-color:rgb(80, 66, 172);
 	border-bottom-width:1px;
+	text-align:center;
   }
   .subHead,.p_text{
 	font-size:12px;
@@ -207,7 +207,7 @@
 		}
 	</script>
   <div id="header"> </div>
-  
+  <div style="padding-left:2em;">
   <div style="margin-bottom:1em;font-size:14px">
     <div style="margin-left:2em; display:inline"><p id="branchCodeSpace" style="display:inline">Branch Code :  <?php echo $branch_code ?></p></div>
     <div style="margin-left:3em; display:inline;"><p id="branchNameSpace" style="display:inline">Branch Name : <?php echo $branch_name ?></p></div>
@@ -301,13 +301,13 @@
     <input type="checkbox" name="acceptConfirmation" value="confirmed" checked="checked" readonly="readonly" disabled/>I, the branch manager, confirmed that all the observations pointed out in the Electrical Safety Audit report have been attended.
   </p>
   <div>
-    <div style="display:inline;font-weight:bold">Date : <p id="submissionDate" style="display:inline"><?php echo $submissionDate ?></p></div>
+    <div style="display:inline;font-weight:bold">Date : <p id="submissionDate" style="display:inline"><?php echo date("d/m/Y h:m:sa",strtotime($submissionDate)); ?></p></div>
     <div style="margin-right:3em; display:inline;float:right;" >(BRANCH MANAGER)</div>
   </div>
   <div style="text-align:center;padding:3em;">
 	<?php 
 		if(!$isEntryFinalized){
-			echo '<button type="button" class="pure-button pure-button-primary" name ="backButton" id="backButton">Edit Data</button> ';
+			echo '<button type="button" class="pure-button pure-button-primary" name ="editButton" id="editButton" onClick="window.location.href=\'editDataEntry.php\'">Edit Data</button> ';
 			echo '<button type="button" class="pure-button pure-button-primary" name ="finishButton" id="finishButton" onClick="javascript:finishEntry()">Finish</button>';
 		}
 		else{
@@ -317,6 +317,7 @@
     
   </div>
   </form>
+  </div>
 </body>
 
 </html>

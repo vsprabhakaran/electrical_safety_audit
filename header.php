@@ -10,6 +10,7 @@
 	vertical-align:middle;
 	width: 48%;
 	padding-left:3%;
+	display:table-cell;
 
 }
 #two span
@@ -22,7 +23,7 @@
 }
 #three
 {
-	width:15%;
+	width:17%;
 }
 #three img
 {
@@ -43,6 +44,7 @@
 	margin-bottom:2ex;
 	padding-top:1ex;
 	background-color:rgb(242, 242, 242);
+	font-size:12px;
 }
 .headerImg{
 	max-width:100%;
@@ -52,13 +54,21 @@
 {
 	
 }
+.marqueeDiv{
+	border-color: white; 
+	border-color: grey;  
+	border-style: solid; 
+	border-width:1px 0 1px 0; 
+	margin-bottom:0.5em;
+	color:red;
+}
 </style>
 </head>
 <body>
-<div style="width:97%" class="headerParentDiv" >
+<div style="width:100%" class="headerParentDiv" >
 <div id="one" class="headerDivs"><img src="img/header_sbi.png" alt="sbi_logo" class="headerImg"/>
 </div>
-<div id="two" class="headerDivs"><span>ELECTRICAL AND SAFETY AUDIT <br>2014-2015</span>
+<div id="two" class="headerDivs"><span>ELECTRICAL AND SAFETY AUDIT COMPLIANCE <br>2014-2015</span>
 </div>
 <div id="three" class="headerDivs">
 <?php
@@ -72,6 +82,7 @@ if(isset($_SESSION["esa_brcode"]) && $_SESSION["esa_brcode"] != "")
 
 ?>
 </div>
-<div>
+</div>
+<div class="marqueeDiv headerDontPrint"> <marquee>Please enter the ELECTRICAL AND SAFETY AUDIT COMPLIANCE details before 10-Mar-2015.</marquee></div>
 </body>
 </html>
