@@ -1,44 +1,29 @@
 <!DOCTYPE html>
+<?php
+session_start();
+if(!(isset($_SESSION["esa_brcode"]) && $_SESSION["esa_brcode"] != "")){
+	redirect("loginPage.php");
+	return;
+}
+if($_SESSION["esa_brcode"] != "admin"){
+	redirect("logout.php");
+}
+$branch_code=$_GET["branchCode"];
+
+?>
 <head>
-  <title>Your Branch Audit Data</title>
+  <title>Branch Audit Data</title>
   <script type="text/javascript" src="js/jquery-latest.min.js"></script>
   <script type="text/javascript" src="js/jquery-ui.min.js"></script>
   <link rel="stylesheet" href="css/jquery-ui.min.css">
   <link rel="stylesheet" href="css/pure-min.css">
+  <link rel="stylesheet" href="css/css-table.css">
   <?php
-	$isEntryFinalized = false;
-    session_start();
-    $con = new mysqli("localhost", "root", "", "electrical_audit");
-    if ($con->connect_errno) {
-      die("Connection failed: " . $conn->connect_error);
-    }
-    
-	
-	if(!(isset($_SESSION["esa_brcode"]) && $_SESSION["esa_brcode"] != "")){
-		redirect("loginPage.php");
-		return;
-	}
-	if($_SESSION["esa_brcode"] === "admin")
-		redirect("adminPage.php");
-    $branch_code=$_SESSION["esa_brcode"];
-    $query=mysqli_query($con,"select branch_name as 'branch_name' from branch_master where branch_code = '$branch_code'");
+	createConnection($con);
+    $query = mysqli_query($con,"select branch_name as 'branch_name' from branch_master where branch_code = '$branch_code'");
     $row = mysqli_fetch_array($query);
     $branch_name = $row['branch_name'];
 	
-	if(!alreadyExistingEntry($branch_code))
-	{
-		redirect("dataEntry.php");
-		return;
-	}
-	else if(isFinalizedEntry($branch_code)){
-		$isEntryFinalized = TRUE;
-	}
-	
-	
-	/*
-	Please note that whatever the changes you do below should also be done in editDataEntry.php
-	as its the hybrid of dataEntry.php for HTML compoenets and branchEntryDetails.php for retrieving the data from DB.
-	*/
 	$balancingAndDistribution_status= "";
 	$balancingAndDistribution_date= "";
 	$mccb_status= "";
@@ -105,33 +90,7 @@
 	   header('Location: ' . $url, true, $statusCode);
 	   die();
 	}
-	
-	
-	function alreadyExistingEntry($branch_code)
-	{
-		global $con;
-		$query=mysqli_query($con,"select count(*) as 'branch_code' from audit_information where branch_code = '".$branch_code."'");
-		$row = mysqli_fetch_array($query);
-		$no_entries = $row['branch_code'];
-		if($no_entries <= 0)
-			return false;
-		else if($no_entries == 1)
-			return true;
-		else
-			die("processing error: more than one entry found for ".$branch_code." branch");
-	}
-	function isFinalizedEntry($branch_code){
-		global $con;
-		$query=mysqli_query($con,"select finalized  from audit_information where branch_code = '".$branch_code."'");
-		$row = mysqli_fetch_array($query);
-		$is_finalized = $row['finalized'];
-		if($is_finalized === "Yes")
-			return true;
-		else if($is_finalized === "No")
-			return false;
-		else
-			die("processing error: invalid finalized entry found for ".$branch_code." branch");
-	}
+
 	function getObservationEntry($branch_code, $serial_no, &$obsText, &$obsStatus, &$obsDate)
 	{
 		global $con;
@@ -145,7 +104,13 @@
 		{
 			die("processing error: invalid other observations found for ".$branch_code." branch on observation no ".$serial_no);
 		}
-
+	}
+	function createConnection(&$con)
+	{
+		$con = new mysqli("localhost", "root", "", "electrical_audit");
+		if ($con->connect_errno) {
+			die("Connection failed: " . $conn->connect_error);
+		}
 	}
   ?>
   <style type="text/css">
@@ -156,7 +121,8 @@
   .pure-table td{
 	padding: 0.25ex;
 	border-bottom-width:1px;
-	
+	white-space: nowrap;
+	word-wrap: wrap;
   }
   .lineHead {
 	text-align:left;
@@ -183,6 +149,7 @@
   }
   p{
 	font-size:12px;
+	margin: 5px 0 5px 0;
   }
   #header
   {
@@ -193,40 +160,35 @@
 	text-wrap:wrap;
 	padding:0.2em;
   }
+  .pure-table caption {
+	  color: black;
+	  padding: 1em 0;
+	  text-align: center;
+	  font-size: 18px;
+	  font-weight: bold;
+	  background: rgb(242, 242, 242);
+	}
   </style>
 </head>
 <body style="font-family:verdana">
 	<script type="text/javascript">
 		$(document).ready(function () {
-			$("#header").load("header.php");
-			$("#printButton").click(function(){
-				$(":button").hide();
-				$(".headerDontPrint").hide();
-				window.print();
-				$(":button").show();
-				$(".headerDontPrint").show();
-			});
+			//$("#header").load("header.php");
 		});
-		function finishEntry(){
-			if(confirm("Note: The Audit Details entered would be final and cannot be changed.\n\n Press OK to continue or Press CANCEL to keep editing."))
-				$("form").submit();
-		}
 	</script>
-  <div id="header"> </div>
   <div style="padding-left:2em;">
   <div style="margin-bottom:1em;font-size:14px">
     <div style="margin-left:2em; display:inline"><p id="branchCodeSpace" style="display:inline">Branch Code :  <?php echo $branch_code ?></p></div>
     <div style="margin-left:3em; display:inline;"><p id="branchNameSpace" style="display:inline">Branch Name : <?php echo $branch_name ?></p></div>
   </div>
-  <form id="formid" action="finalizeEntry.php" method="post" >
-  <input type="hidden" name="post_from" value="finalizeEntry" />
-  <table border=1 style="width:95%;text-align:center" class="pure-table">
+  <table border=1 style="width:70%;text-align:center" class="pure-table">
+  <caption> Branch Audit Details </caption>
   <thead>
     <tr class="topHeader">
-      <th style="width:5%">S.No</th>
-      <th style="width:60%"> Major Observations</th>
-      <th style="width:15%"> Whether Rectified/Replaced</th>
-      <th style="width:15%"> Date of Completion</th>
+      <th >S.No</th>
+      <th >Observations</th>
+      <th >Rectified</th>
+      <th > Date </th>
     </tr>
    </thead>
    <tbody>
@@ -316,32 +278,6 @@
 	?>
 	</tbody>
   </table>
-  <p>
-    <b>NOTE</b>: The above are major observations based on the Electrical Safety Audit Report submitted by
-    External Agency. These are only illustrative and the Branch has to rectify all the observations
-    pointed out in the respective Branch Electrical Safety Audit Report.
-  </p>
-  <p>
-    <input type="checkbox" name="acceptConfirmation" value="confirmed" checked="checked" readonly="readonly" disabled/>I confirm that all the observations pointed out in the Electrical Safety Audit report have been attended.
-  </p>
-  <div>
-    <div style="display:inline;font-weight:bold">Date : <p id="submissionDate" style="display:inline"><?php echo date("d/m/Y h:i:sa",strtotime($submissionDate)); ?></p></div>
-    <div style="margin-right:3em; display:inline;float:right;" >(BRANCH MANAGER)</div>
-  </div>
-  <div style="text-align:center;padding:3em;">
-	<?php 
-		if(!$isEntryFinalized){
-			echo '<button type="button" class="pure-button pure-button-primary" name ="editButton" id="editButton" onClick="window.location.href=\'editDataEntry.php\'">Edit Data</button> ';
-			//echo '<button type="button" class="pure-button pure-button-primary" name ="finishButton" id="finishButton" onClick="javascript:finishEntry()">Finish</button>';
-			echo '<button type="button" class="pure-button pure-button-primary" name ="printButton" id="printButton">Print</button> ';
-		}
-		else{
-			echo '<button type="button" class="pure-button pure-button-primary" name ="printButton" id="printButton">Print</button> ';
-		}
-	?>
-    
-  </div>
-  </form>
   </div>
 </body>
 

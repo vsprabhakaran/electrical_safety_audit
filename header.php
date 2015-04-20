@@ -65,8 +65,10 @@
 </style>
 </head>
 <body>
+
 <div style="width:100%" class="headerParentDiv" >
-<div id="one" class="headerDivs"><img src="img/header_sbi.png" alt="sbi_logo" class="headerImg"/>
+
+<div id="one" class="headerDivs"><img src="/electrical_safety_audit/img/header_sbi.png" alt="sbi_logo" class="headerImg"/>
 </div>
 <div id="two" class="headerDivs"><span>ELECTRICAL AND SAFETY AUDIT COMPLIANCE <br>2014-2015</span>
 </div>
@@ -75,8 +77,8 @@
 session_start();
 if(isset($_SESSION["esa_brcode"]) && $_SESSION["esa_brcode"] != "")
 { ?> 
-<a href="logout.php" ><img src="img/logout.png" alt="Logout" class="headerImg headerDontPrint"/></a>
-<a href="changePassword.php" ><img src="img/changepassword.png" alt="change password" class="headerImg headerDontPrint"/></a>
+<a href="/electrical_safety_audit/logout.php" ><img src="/electrical_safety_audit/img/logout.png" alt="Logout" class="headerImg headerDontPrint"/></a>
+<a href="/electrical_safety_audit/changePassword.php" ><img src="/electrical_safety_audit/img/changepassword.png" alt="change password" class="headerImg headerDontPrint"/></a>
 <?php
 }
 
