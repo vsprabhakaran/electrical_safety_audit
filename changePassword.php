@@ -108,7 +108,6 @@
 	</script>
 	<div id="header"> </div>
 	<div id="container">
-	<br><br>
 		<form id="formid" class="pure-form pure-form-aligned" style="padding-left: 40px;">
 		<div id="formTitle"> Change Branch Password </div>
 		<div class="pure-control-group">

@@ -23,7 +23,7 @@
 }
 #three
 {
-	width:17%;
+	width:15%;
 }
 #three img
 {
@@ -83,6 +83,6 @@ if(isset($_SESSION["esa_brcode"]) && $_SESSION["esa_brcode"] != "")
 ?>
 </div>
 </div>
-<div class="marqueeDiv headerDontPrint"> <marquee>Please enter the ELECTRICAL AND SAFETY AUDIT COMPLIANCE details before 20-Apr-2015.</marquee></div>
+<div class="marqueeDiv headerDontPrint"> <marquee>Please enter the ELECTRICAL AND SAFETY AUDIT COMPLIANCE details before 25-Apr-2015.</marquee></div>
 </body>
 </html>

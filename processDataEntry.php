@@ -13,35 +13,32 @@ if($_SESSION["esa_brcode"] === "admin")
 	redirect("adminPage.php");
 		
 $branch_code = $_SESSION["esa_brcode"];
-/*foreach ($_POST as $key => $value)
-{
- echo htmlspecialchars($key)." is ".htmlspecialchars($value)."<br>";
-}*/
-
-//Concatenating the Pending Comments
-$comments = "";
-if($_POST["otherObservations_r"] === "Yes"){
-	$comments .= htmlspecialchars($_POST["otherObservations_pending_1"])."^".
-				htmlspecialchars($_POST["otherObservations_pending_2"])."^".
-				htmlspecialchars($_POST["otherObservations_pending_3"])."^".
-				htmlspecialchars($_POST["otherObservations_pending_4"])."^".
-				htmlspecialchars($_POST["otherObservations_pending_5"]);
-}
-
+$con->autocommit(FALSE);
 if((($_POST["post_from"] === "newEntry") && alreadyExistingEntry($branch_code)) || (($_POST["post_from"] === "oldEntry") && !alreadyExistingEntry($branch_code))){
 	echo "<body>Something seems to be wrong!!!. :( .</body>";
 	return;
 }
 else if($_POST["post_from"] === "oldEntry"){
+	
 	$delQuery = "delete from audit_information where branch_code = '".$branch_code."'";
 	$queryStatus = mysqli_query($con,$delQuery);
 	if(!$queryStatus)
 	{
 		echo "<br><h2>Database Error!!!</h2><br>";
+		$con->rollback();
 		return;
 	}
+	$delQuery = "delete from other_observations where branch_code = '".$branch_code."'";
+	$queryStatus = mysqli_query($con,$delQuery);
+	if(!$queryStatus)
+	{
+		echo "<br><h2>Database Error!!!</h2><br>";
+		$con->rollback();
+		return;
+	}
+	
 }
-$sqlQuery = "insert into audit_information(branch_code, balancing, balancing_date,mccb,mccb_date,earthing,earthing_date,wire_replacement,wire_replacement_date,emergency_lights,emergency_lights_date,scrap_removal,scrap_removal_date,ventilation,ventilation_date,periodical_maintanance,periodical_maintanance_date,ac_timers,ac_timers_date,power_factor,power_factor_date,other_pending_status,other_pending_observations,finalized) values("
+$sqlQuery = "insert into audit_information(branch_code, balancing, balancing_date,mccb,mccb_date,earthing,earthing_date,wire_replacement,wire_replacement_date,emergency_lights,emergency_lights_date,scrap_removal,scrap_removal_date,ventilation,ventilation_date,periodical_maintanance,periodical_maintanance_date,ac_timers,ac_timers_date,power_factor,power_factor_date,other_observations_count,finalized) values("
 			//."'"+ +"'".
 			."'". $branch_code ."',"
 			."'". $_POST["balancingAndDistribution_r"]."',"
@@ -64,8 +61,8 @@ $sqlQuery = "insert into audit_information(branch_code, balancing, balancing_dat
 			."STR_TO_DATE('". $_POST["acTimers_d"] ."','%d/%m/%Y'),"
 			."'". $_POST["powerFactor_r"]."',"
 			."STR_TO_DATE('". $_POST["powerFactor_d"] ."','%d/%m/%Y'),"
-			."'". $_POST["otherObservations_r"]."',"
-			."'". $comments ."','No')";
+			."'". $_POST["observationCountHidden"]."',"
+			."'No')";
 
 //echo $sqlQuery;
 $queryStatus = mysqli_query($con,$sqlQuery);
@@ -73,11 +70,31 @@ if(!$queryStatus)
 {
 	echo $sqlQuery;
 	echo "<br><h2>Error creating the record!!!</h2><br>";
+	$con->rollback();
+	return;
 }
-else
+$observartionCount = $_POST["observationCountHidden"];
+$currentObservation = 1;
+
+while($currentObservation <= $observartionCount)
 {
-	redirect("branchEntryDetails.php");
+	$obsText = $_POST["otherComp_text_".$currentObservation];
+	$obsStatus = $_POST["otherComp_".$currentObservation."_r"];
+	$obsDate = ($obsStatus === "Yes")?$_POST["otherComp_".$currentObservation."_d"]:"";
+	$sqlQuery = "insert into other_observations values('$branch_code','$currentObservation','$obsText','$obsStatus',STR_TO_DATE('$obsDate','%d/%m/%Y'))";
+	$queryStatus = mysqli_query($con,$sqlQuery);
+	if(!$queryStatus)
+	{
+		echo "<br><h2>Error creating the observation record!!!</h2><br>";
+		$con->rollback();
+		return;
+	}
+	$currentObservation++;
 }
+$con->commit();
+redirect("branchEntryDetails.php");
+$con->close();
+
 function redirect($url, $statusCode = 303)
 {
    header('Location: ' . $url, true, $statusCode);

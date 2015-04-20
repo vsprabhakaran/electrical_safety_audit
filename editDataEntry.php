@@ -4,6 +4,7 @@
   <script type="text/javascript" src="js/jquery-latest.min.js"></script>
   <script type="text/javascript" src="js/jquery-ui.min.js"></script>
   <link rel="stylesheet" href="css/jquery-ui.min.css">
+  <script type="text/javascript" src="js/otherObservationUtils.js"></script>
   <link rel="stylesheet" href="css/pure-min.css">
   <?php
   
@@ -94,8 +95,7 @@
 	$acTimers_date= "";
 	$powerFactor_status= "";
 	$powerFactor_date= "";
-	$otherObservations_status= "";
-	$otherObservations_comments= "";
+	$otherObservationsCount = "";
 	$submissionDate = "";
 	
 	$query=mysqli_query($con,"select * from audit_information where branch_code = '".$branch_code."'");
@@ -120,8 +120,7 @@
 	$acTimers_date= $row['ac_timers_date'];
 	$powerFactor_status= $row['power_factor'];
 	$powerFactor_date= $row['power_factor_date'];
-	$otherObservations_status= $row['other_pending_status'];
-	$otherObservations_comments= $row['other_pending_observations'];
+	$otherObservationsCount = $row['other_observations_count'];
 	$submissionDate = $row['date_of_entry'];
 	
 	//Reworking the dates
@@ -137,8 +136,21 @@
 	$powerFactor_date = ($powerFactor_date === "0000-00-00")?"":date("d/m/Y",strtotime($powerFactor_date));
 	
 	
-	//Reworking the Comments
-	$pendingComments = ($otherObservations_status ==="Yes")?explode('^',$otherObservations_comments):"";
+	function getObservationEntry($branch_code, $serial_no, &$obsText, &$obsStatus, &$obsDate)
+	{
+		global $con;
+		$query=mysqli_query($con,"select *  from other_observations where branch_code = '".$branch_code."' and observation_serial='".$serial_no."'");
+		$row = mysqli_fetch_array($query);
+		$obsText = $row['observation_text'];
+		$obsStatus = $row['rectified_status'];
+		$obsDate = $row['rectified_date'];
+		$obsDate = ($obsDate === "0000-00-00")?"":date("d/m/Y",strtotime($obsDate));
+		if($obsText === "" || $obsStatus === "")
+		{
+			die("processing error: invalid other observations found for ".$branch_code." branch on observation no ".$serial_no);
+		}
+
+	}
 	
   ?>
   <style type="text/css">
@@ -200,7 +212,7 @@
 			var all_radio_checked = true;
 			var no_checked_fields = 0;
 			var all_date_chosen = true;
-			var pending_comments_ok = true;
+			var otherObservations_text_present = true;
 			
 			//Checking whether all the radio buttons groups are checked and 
 			// if checked corresponding dates should be given.
@@ -213,7 +225,7 @@
 				var date_obj = $("input[name='"+ date_name +"']")
 				if($(this).val() == "Yes")
 				{
-				  if((!$(date_obj).val() != '')) {
+				  if($(date_obj).val() == '') {
 					all_date_chosen = false;
 				  }
 				}
@@ -221,22 +233,19 @@
 					$(date_obj).val('');
 				}
 			});
-			if(no_checked_fields < 11) all_radio_checked = false;
+			
+			//Checking whether the required number of radio buttons are checked
+			var observationCount = parseInt($('input[name=observationCountHidden]').val());
+			if(no_checked_fields < (10 + observationCount)) all_radio_checked = false;
+			
+			//Verifying whether the other observations are all filled
+			$('.otherComp_text').each(function() {
+				if($(this).val() === "") otherObservations_text_present = false;
+			});
 			
 			
-			if ($("input[name='otherObservations_r']:checked").val() == "Yes") {
-				if($("#otherObservations_pending_1").val() == "") 
-				{
-					pending_comments_ok = false;
-					$("#otherObservations_pending_1").css('background-color','yellow');
-				}
-				else
-				{
-					$("#otherObservations_pending_1").css('background-color','#FFFFFF');
-				}
-			}
 			//Alerting the user when he forgets the fields
-			if(!all_radio_checked || !all_date_chosen || !pending_comments_ok) {
+			if(!all_radio_checked || !all_date_chosen || !otherObservations_text_present) {
 				alert("Please fill all the options and dates");
 				return false;
 			}
@@ -262,7 +271,8 @@
   </div>
   <form id="formid" action="processDataEntry.php" method="post" >
   <input type="hidden" name="post_from" value="oldEntry"/>
-  <table border=1 class = "pure-table">
+    <input type="hidden" name="observationCountHidden" value="<?php echo $otherObservationsCount; ?>"/>
+  <table border=1 class = "pure-table" id="table_id">
     <tr class="topHeader">
       <th  rowspan="2">S.No</th>
       <th rowspan="2"> Major Observations</th>
@@ -356,17 +366,36 @@
     </tr>
     <tr class="pure-table-odd">
       <td><p>11</p></td>
-      <td><p class="subHead">Any other observation made in the Electrical Safety Audit Report pending for compliance </p></td>
-      <td>Yes <input type="radio" name="otherObservations_r" value="Yes"  <?php echo ($otherObservations_status ==="Yes")?"checked='checked'":"''"; ?>  /></td>
-      <td colspan="2">No <input type="radio" name="otherObservations_r" value="No"  <?php echo ($otherObservations_status ==="No")?"checked='checked'":"''"; ?> /></td>
-      <td>
-		1.<textarea name="otherObservations_pending_1" class="otherObservations_pending" id="otherObservations_pending_1" /><?php if($otherObservations_status ==="Yes") echo $pendingComments[0]; ?></textarea> <br/>
-		2.<textarea name="otherObservations_pending_2" class="otherObservations_pending" id="otherObservations_pending_2" /><?php if($otherObservations_status ==="Yes") echo $pendingComments[1]; ?></textarea> <br/>
-		3.<textarea name="otherObservations_pending_3" class="otherObservations_pending" id="otherObservations_pending_3" /><?php if($otherObservations_status ==="Yes") echo $pendingComments[2]; ?></textarea> <br/>
-		4.<textarea name="otherObservations_pending_4" class="otherObservations_pending" id="otherObservations_pending_4" /><?php if($otherObservations_status ==="Yes") echo $pendingComments[3]; ?></textarea> <br/>
-		5.<textarea name="otherObservations_pending_5" class="otherObservations_pending" id="otherObservations_pending_5" /><?php if($otherObservations_status ==="Yes") echo $pendingComments[4]; ?></textarea> <br/>
+      <td colspan="5">
+		  <p class="subHead" style="display:table-cell;">
+			Any other observation made in the Electrical Safety Audit Report pending for compliance
+		  </p>
+		  <div style="display:table-cell; padding-left:1em;">
+			  <button id="otherComp_button_add" class="otherComp_button" type="button" onClick="javascript:addNewObservation('table_id');"> Add new </button>
+			  <button id="otherComp_button_add" class="otherComp_button" type="button" onClick="javascript:deleteLastObservation('table_id');"> Delete Last Entry </button>
+		  <div>
 	  </td>
     </tr>
+	<?php
+	$currentObservation = 1;
+	$obsText = "";
+	$obsStatus = "";
+	$obsDate = "";
+	while($currentObservation <= $otherObservationsCount){
+		getObservationEntry($branch_code,$currentObservation,$obsText,$obsStatus,$obsDate);
+		echo '<tr class="pure-table-odd">
+			   <td>
+				  <p>&nbsp;</p>
+			   </td>
+			   <td>'.$currentObservation.'. <input type="text" name="otherComp_text_'.$currentObservation.'" id="otherComp_text_'.$currentObservation.'" style="width:90%" class="otherComp_text" value="'.$obsText.'"> </td>' .
+				'<td><input type="radio" name="otherComp_'.$currentObservation.'_r" id="otherComp_'.$currentObservation.'_r" value="Yes" '.(($obsStatus === 'Yes')?'checked="checked"':'').'></td>'.
+				'<td><input type="radio" name="otherComp_'.$currentObservation.'_r" id="otherComp_'.$currentObservation.'_r" value="No" '.(($obsStatus === 'No')?'checked="checked"':'').'></td>'.
+				'<td></td>'.
+				'<td><input type="text" name="otherComp_'.$currentObservation.'_d" id="otherComp_'.$currentObservation.'_d" class="date_picker" value="'.$obsDate.'" /></td>'.
+			'</tr>';
+		$currentObservation++;
+	}
+	?>	
   </table>
   <p>
     NOTE: The above are major observations based on the Electrical Safety Audit Report submitted by
@@ -377,7 +406,6 @@
     <input type="checkbox" name="acceptConfirmation" value="confirmed"/> I, the branch manager, confirm that all the observations pointed out in the
     Electrical Safety Audit report have been attended.
   </p>
-  
   <div style="text-align:center">
       <button type="button" class="pure-button pure-button-primary" name ="submitBtn" onClick="submitForm()">Save and Preview</button>
   </div>

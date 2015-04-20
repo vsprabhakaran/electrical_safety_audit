@@ -7,6 +7,7 @@
 	<style type="text/css">
 
 	</style>
+	<title>Login</title>
 </head>
 <body>
 	<script type="text/javascript">

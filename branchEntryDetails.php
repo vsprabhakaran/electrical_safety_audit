@@ -59,8 +59,7 @@
 	$acTimers_date= "";
 	$powerFactor_status= "";
 	$powerFactor_date= "";
-	$otherObservations_status= "";
-	$otherObservations_comments= "";
+	$otherObservationsCount = "";
 	$submissionDate = "";
 	
 	$query=mysqli_query($con,"select * from audit_information where branch_code = '".$branch_code."'");
@@ -85,8 +84,7 @@
 	$acTimers_date= $row['ac_timers_date'];
 	$powerFactor_status= $row['power_factor'];
 	$powerFactor_date= $row['power_factor_date'];
-	$otherObservations_status= $row['other_pending_status'];
-	$otherObservations_comments= $row['other_pending_observations'];
+	$otherObservationsCount = $row['other_observations_count'];
 	$submissionDate = $row['date_of_entry'];
 	
 	//Reworking the dates
@@ -102,13 +100,6 @@
 	$powerFactor_date = ($powerFactor_date === "0000-00-00")?"-":date("d/m/Y",strtotime($powerFactor_date));
 	
 	
-	//Reworking the Comments
-	$pendingComments = "";
-	if($otherObservations_status == "Yes"){
-		foreach(explode('^',$otherObservations_comments) as $index=>$text){
-			$pendingComments .= "<div><b>".($index+1)."</b>. ".$text."</div>";
-		}
-	}
 	function redirect($url, $statusCode = 303)
 	{
 	   header('Location: ' . $url, true, $statusCode);
@@ -140,6 +131,21 @@
 			return false;
 		else
 			die("processing error: invalid finalized entry found for ".$branch_code." branch");
+	}
+	function getObservationEntry($branch_code, $serial_no, &$obsText, &$obsStatus, &$obsDate)
+	{
+		global $con;
+		$query=mysqli_query($con,"select *  from other_observations where branch_code = '".$branch_code."' and observation_serial='".$serial_no."'");
+		$row = mysqli_fetch_array($query);
+		$obsText = $row['observation_text'];
+		$obsStatus = $row['rectified_status'];
+		$obsDate = $row['rectified_date'];
+		$obsDate = ($obsDate === "0000-00-00")?"-":date("d/m/Y",strtotime($obsDate));
+		if($obsText === "" || $obsStatus === "")
+		{
+			die("processing error: invalid other observations found for ".$branch_code." branch on observation no ".$serial_no);
+		}
+
 	}
   ?>
   <style type="text/css">
@@ -286,10 +292,28 @@
     </tr>
     <tr class="pure-table-odd">
       <td><p>11</p></td>
-      <td class="lineHead"><p class="subHead">Any other observation made in the Electrical Safety Audit Report pending for compliance </p></td>
-	  <td><p id="otherObservations_status" class="p_text"><?php echo $otherObservations_status ?></p></td>
-      <td><div id="otherObservations_comments" class="p_text"><?php echo $pendingComments ?></div></td>
+      <td colspan="3" class="lineHead">
+		  <p class="subHead" style="display:table-cell;">
+			Any other observation made in the Electrical Safety Audit Report pending for compliance
+		  </p>
+	  </td>
     </tr>
+	<?php
+	$currentObservation = 1;
+	$obsText = "";
+	$obsStatus = "";
+	$obsDate = "";
+	while($currentObservation <= $otherObservationsCount){
+		getObservationEntry($branch_code,$currentObservation,$obsText,$obsStatus,$obsDate);
+		echo '<tr class="pure-table-odd">' .
+				'<td><p>&nbsp;</p></td>' .
+				'<td class="lineHead"><p class="subHead">'.$currentObservation.'. '.$obsText.'</p></td>' .
+				'<td><p  class="p_text">'.$obsStatus.'</p></td>'.
+				'<td><p  class="p_text">'.$obsDate.'</p></td>'.
+			'</tr>';
+		$currentObservation++;
+	}
+	?>
 	</tbody>
   </table>
   <p>

@@ -3,6 +3,7 @@
   <title>Enter your Branch Audit Details</title>
   <script type="text/javascript" src="js/jquery-latest.min.js"></script>
   <script type="text/javascript" src="js/jquery-ui.min.js"></script>
+  <script type="text/javascript" src="js/otherObservationUtils.js"></script>
   <link rel="stylesheet" href="css/jquery-ui.min.css">
   <link rel="stylesheet" href="css/pure-min.css">
   <?php
@@ -106,7 +107,7 @@
 			var all_radio_checked = true;
 			var no_checked_fields = 0;
 			var all_date_chosen = true;
-			var pending_comments_ok = true;
+			var otherObservations_text_present = true;
 			
 			//Checking whether all the radio buttons groups are checked and 
 			// if checked corresponding dates should be given.
@@ -119,7 +120,7 @@
 				var date_obj = $("input[name='"+ date_name +"']")
 				if($(this).val() == "Yes")
 				{
-				  if((!$(date_obj).val() != '')) {
+				  if($(date_obj).val() == '') {
 					all_date_chosen = false;
 				  }
 				}
@@ -127,22 +128,19 @@
 					$(date_obj).val('');
 				}
 			});
-			if(no_checked_fields < 11) all_radio_checked = false;
+			
+			//Checking whether the required number of radio buttons are checked
+			var observationCount = parseInt($('input[name=observationCountHidden]').val());
+			if(no_checked_fields < (10 + observationCount)) all_radio_checked = false;
+			
+			//Verifying whether the other observations are all filled
+			$('.otherComp_text').each(function() {
+				if($(this).val() === "") otherObservations_text_present = false;
+			});
 			
 			
-			if ($("input[name='otherObservations_r']:checked").val() == "Yes") {
-				if($("#otherObservations_pending_1").val() == "") 
-				{
-					pending_comments_ok = false;
-					$("#otherObservations_pending_1").css('background-color','yellow');
-				}
-				else
-				{
-					$("#otherObservations_pending_1").css('background-color','#FFFFFF');
-				}
-			}
 			//Alerting the user when he forgets the fields
-			if(!all_radio_checked || !all_date_chosen || !pending_comments_ok) {
+			if(!all_radio_checked || !all_date_chosen || !otherObservations_text_present) {
 				alert("Please fill all the options and dates");
 				return false;
 			}
@@ -166,7 +164,8 @@
   </div>
   <form id="formid" action="processDataEntry.php" method="post" >
   <input type="hidden" name="post_from" value="newEntry"/>
-  <table border=1 class = "pure-table">
+  <input type="hidden" name="observationCountHidden" value="0"/>
+  <table border=1 class = "pure-table" id="table_id">
     <tr class="topHeader">
       <th  rowspan="2">S.No</th>
       <th rowspan="2"> Major Observations</th>
@@ -260,17 +259,17 @@
     </tr>
     <tr class="pure-table-odd">
       <td><p>11</p></td>
-      <td><p class="subHead">Any other observation made in the Electrical Safety Audit Report pending for compliance </p></td>
-      <td>Yes <input type="radio" name="otherObservations_r" value="Yes"/></td>
-      <td colspan="2">No <input type="radio" name="otherObservations_r" value="No"/></td>
-      <td>
-		1.<textarea name="otherObservations_pending_1" class="otherObservations_pending" id="otherObservations_pending_1" value=""/></textarea> <br/>
-		2.<textarea name="otherObservations_pending_2" class="otherObservations_pending" id="otherObservations_pending_2" value=""/></textarea> <br/>
-		3.<textarea name="otherObservations_pending_3" class="otherObservations_pending" id="otherObservations_pending_3" value=""/></textarea> <br/>
-		4.<textarea name="otherObservations_pending_4" class="otherObservations_pending" id="otherObservations_pending_4" value=""/></textarea> <br/>
-		5.<textarea name="otherObservations_pending_5" class="otherObservations_pending" id="otherObservations_pending_5" value=""/></textarea> <br/>
+      <td colspan="5">
+		  <p class="subHead" style="display:table-cell;">
+			Any other observation made in the Electrical Safety Audit Report pending for compliance
+		  </p>
+		  <div style="display:table-cell; padding-left:1em;">
+			  <button id="otherComp_button_add" class="otherComp_button" type="button" onClick="javascript:addNewObservation('table_id');"> Add new </button>
+			  <button id="otherComp_button_add" class="otherComp_button" type="button" onClick="javascript:deleteLastObservation('table_id');"> Delete Last Entry </button>
+		  <div>
 	  </td>
     </tr>
+
   </table>
   <p>
     NOTE: The above are major observations based on the Electrical Safety Audit Report submitted by
